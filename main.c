@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include "scene.h"
 #include "background.h"
+#include "player.h"
 
 static volatile bool g_running = true;
 
@@ -30,10 +31,39 @@ int main(void) {
 
     add_object_to_scene(&scene, &background.obj);
 
+    player_t player = {0};
+    ret = player_init(&player, &scene);
+    if (ret < 0) {
+        return 0;
+    }
+
+    add_object_to_scene(&scene, &player.obj);
+
     puts("Objects initialized, entering game loop");
 
+    SDL_Event e;
+
     while (g_running) {
-        update_scene(&scene);
+        movement_vec_t vec = {0};
+        while (SDL_PollEvent(&e) != 0) {
+             if (e.type == SDL_KEYDOWN) {
+                switch (e.key.keysym.sym) {
+                    case SDLK_w:
+                        vec.y -= player.obj.speed;
+                        break;
+                    case SDLK_s:
+                        vec.y += player.obj.speed;
+                        break;
+                    case SDLK_a:
+                        vec.x -= player.obj.speed;
+                        break;
+                    case SDLK_d:
+                        vec.x += player.obj.speed;
+                        break;
+                }
+            }
+        }
+        update_scene(&scene, &vec);
         SDL_Delay(10);
     }
 

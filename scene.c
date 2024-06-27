@@ -9,7 +9,7 @@ static const unsigned SPEED = 2;
 //  data operation commonly used in computer graphics in which several bitmaps
 //  are combined into one using a boolean function
 
-int update_scene(scene_t* scene) {
+int update_scene(scene_t* scene, movement_vec_t* vec) {
     int ret;
     object_t* obj;
     list_head_t* pos;
@@ -17,11 +17,9 @@ int update_scene(scene_t* scene) {
     int height;
     SDL_GetWindowSize(scene->window, NULL, &height);
 
-    scene->y  = (scene->y + scene->speed) % height;
-
     list_for_each(pos, &scene->objects) {
         obj = container_of(pos, object_t, list);
-        obj->handler->update(obj, scene);
+        obj->handler->update(obj, scene, vec);
     }
 
     // Clear the screen

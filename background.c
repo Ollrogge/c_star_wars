@@ -4,7 +4,7 @@
 #define IMG_PATH "./images/background.png"
 
 static int init(object_t*, scene_t*);
-static int update(object_t*, scene_t*);
+static int update(object_t*, scene_t*, void* arg);
 static int render(object_t*, scene_t*);
 static int destroy(object_t*);
 
@@ -17,7 +17,7 @@ static const object_handler_t g_handler = {
 
 int background_init(background_t* background, scene_t* scene) {
     background->obj.handler = &g_handler;
-    background->obj.speed = 2;
+    background->obj.speed = 0;
     background->obj.x = 0;
     background->obj.y = 0;
 
@@ -77,8 +77,9 @@ static int init(object_t* obj, scene_t* scene) {
     return 0;
 }
 
-static int update(object_t* obj, scene_t* scene) {
-    obj->y = (obj->speed + obj->y) % obj->height;
+static int update(object_t* obj, scene_t* scene, void* arg) {
+    (void)arg;
+    obj->y = (scene->speed + obj->y) % obj->height;
     return 0;
 }
 
