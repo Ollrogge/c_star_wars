@@ -10,9 +10,6 @@ static void _list_add(list_head_t* entry, list_head_t* prev, list_head_t *next) 
 static void _list_del(list_head_t *entry, list_head_t* prev, list_head_t *next) {
     prev->next = next;
     next->prev = prev;
-
-    entry->next = entry;
-    entry->prev = entry;
 }
 
 void list_add_front(list_head_t* head, list_head_t* entry) {

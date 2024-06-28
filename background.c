@@ -3,16 +3,18 @@
 
 #define IMG_PATH "./images/background.png"
 
-static int init(object_t*, scene_t*);
-static int update(object_t*, scene_t*, void* arg);
-static int render(object_t*, scene_t*);
-static int destroy(object_t*);
+static object_status_t init(object_t*, scene_t*);
+static object_status_t update(object_t*, scene_t*, void* arg);
+static object_status_t render(object_t*, scene_t*);
+static object_status_t destroy(object_t*);
+static object_status_t collision(object_t*, object_t*);
 
 static const object_handler_t g_handler = {
     .init = init,
     .update = update,
     .render = render,
-    .destroy = destroy
+    .destroy = destroy,
+    .collision = collision
 };
 
 int background_init(background_t* background, scene_t* scene) {
@@ -24,13 +26,13 @@ int background_init(background_t* background, scene_t* scene) {
     return 0;
 }
 
-static int init(object_t* obj, scene_t* scene) {
+static object_status_t init(object_t* obj, scene_t* scene) {
     background_t* background = (background_t *)obj;
 
     SDL_Surface* img = IMG_Load(IMG_PATH);
     if (img == NULL) {
         printf("Background.c: unable to load image!: %s \n", IMG_GetError());
-        return -1;
+        return ERROR;
     }
 
     int height, width;
@@ -58,7 +60,7 @@ static int init(object_t* obj, scene_t* scene) {
     SDL_Surface* scaled_surface = SDL_CreateRGBSurface(0, obj->height, obj->width, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
     if (scaled_surface == NULL) {
         printf("Scaled surface failed\n");
-        return -1;
+        return ERROR;
     }
 
     SDL_BlitScaled(img, NULL, scaled_surface, &dstRect);
@@ -71,20 +73,20 @@ static int init(object_t* obj, scene_t* scene) {
     if (background->obj.texture == NULL) {
         printf("Failed to create tecture from surface for background: %s \n", SDL_GetError());
 
-        return -1;
+        return ERROR;
     }
 
-    return 0;
+    return OK;
 }
 
-static int update(object_t* obj, scene_t* scene, void* arg) {
+static object_status_t update(object_t* obj, scene_t* scene, void* arg) {
     (void)arg;
     obj->y = (scene->speed + obj->y) % obj->height;
-    return 0;
+    return OK;
 }
 
-static int render(object_t* obj, scene_t* scene) {
-    int ret = 0;
+static object_status_t render(object_t* obj, scene_t* scene) {
+    int ret = OK;
 
     // Render the first part of the background image
     SDL_Rect src_rect1 = { 0, 0, obj->width, obj->height - obj->y};
@@ -92,7 +94,7 @@ static int render(object_t* obj, scene_t* scene) {
     ret = SDL_RenderCopy(scene->renderer, obj->texture, &src_rect1, &dst_rect1);
     if (ret < 0) {
         printf("SDL_RenderCopy Error: %s\n", SDL_GetError());
-        return ret;
+        return ERROR;
     }
 
     // Render the second part of the background image if needed
@@ -103,15 +105,19 @@ static int render(object_t* obj, scene_t* scene) {
         ret = SDL_RenderCopy(scene->renderer, obj->texture, &src_rect2, &dst_rect2);
         if (ret < 0) {
             printf("SDL_RenderCopy Error: %s\n", SDL_GetError());
-            return ret;
+            return ERROR;
         }
     }
 
     return ret;
 }
 
-static int destroy(object_t* obj) {
+static object_status_t destroy(object_t* obj) {
     SDL_DestroyTexture(obj->texture);
-    return 0;
+    return OK;
 }
 
+
+static object_status_t collision(object_t*, object_t*) {
+    return OK;
+}
