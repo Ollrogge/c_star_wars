@@ -149,7 +149,9 @@ static object_status_t destroy(object_t* obj) {
 }
 
 static object_status_t collision(object_t* me, object_t* other) {
-    if (other->type == ENEMY) {
+    // delay the collision a little until enemy is in the middle of the player
+    // else it looks as if we haven't hit the enemy yet due to rectangle boxes
+    if (other->type == ENEMY && abs(me->y - other->y) >= me->height / 2) {
         return DESTROY;
     }
     return OK;

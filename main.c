@@ -24,7 +24,6 @@ int main(void) {
         return 0;
     }
 
-
     background_t* background = (background_t*)calloc(1, sizeof(background_t));
     ret = background_init(background, &scene);
     if (ret < 0) {
@@ -80,7 +79,7 @@ int main(void) {
     }
 
     puts("Game over");
-    SDL_Delay(3000);
+    SDL_Delay(1000);
 
     destroy_scene(&scene);
 }
