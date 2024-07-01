@@ -6,6 +6,6 @@ typedef struct {
     object_t obj;
 } enemy_t;
 
-int enemy_init(enemy_t* beam, scene_t* scene, int x, int y);
+int enemy_init(enemy_t*, game_state_t*, int, int);
 
 #endif // _ENEMY_H

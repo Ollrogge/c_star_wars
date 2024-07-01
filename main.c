@@ -17,35 +17,48 @@ int main(void) {
 
     signal(SIGINT, int_handler);
 
-    scene_t scene = {0};
+    game_state_t state = {0};
 
-    ret = init_scene(&scene);
+    scene_t scene = {0};
+    state.scene = &scene;
+
+    ret = init_scene(&scene, &state);
     if (ret < 0) {
         return 0;
     }
 
     background_t* background = (background_t*)calloc(1, sizeof(background_t));
-    ret = background_init(background, &scene);
+    ret = background_init(background, &state);
     if (ret < 0) {
         return 0;
     }
-
-    add_object_to_scene(&scene, &background->obj);
+    ret = add_object_to_scene(&background->obj, &scene, &state);
+    if (ret < 0) {
+        return 0;
+    }
 
     player_t* player = (player_t*)calloc(1, sizeof(player_t));
     ret = player_init(player, &scene);
     if (ret < 0) {
         return 0;
     }
+    ret = add_object_to_scene(&player->obj, &scene, &state);
+    if (ret < 0) {
+        return 0;
+    }
 
-    add_object_to_scene(&scene, &player->obj);
+    ret = init_text_for_scene(&scene, &state);
+    if (ret < 0) {
+        return 0;
+    }
 
     puts("Objects initialized, entering game loop");
 
     SDL_Event e;
 
     while (g_running) {
-        game_state_t state = {0};
+        memset(&state.movement, 0, sizeof(state.movement));
+        state.mouse_used = false;
         while (SDL_PollEvent(&e) != 0) {
              if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym) {
@@ -81,5 +94,5 @@ int main(void) {
     puts("Game over");
     SDL_Delay(1000);
 
-    destroy_scene(&scene);
+    destroy_scene(&scene, &state);
 }

@@ -1,6 +1,6 @@
 #include "util.h"
 
-object_status_t load_and_scale_texture(object_t* obj, scene_t* scene, SDL_Surface* img, int width, int height) {
+game_status_t load_and_scale_texture(object_t* obj, scene_t* scene, SDL_Surface* img, int width, int height) {
     // Calculate the scaling factor to fit the image within the window
     float scaleX = (float)width / img->w;
     float scaleY = (float)height / img->h;

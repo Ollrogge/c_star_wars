@@ -3,55 +3,21 @@
 #define _SCENE_H
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
 #include "list.h"
+#include "object.h"
+#include "text.h"
 
-typedef enum {
-    ERROR = -1,
-    OK,
-    DESTROY,
-    GAME_OVER
-} object_status_t;
-
-typedef struct {
-    int x;
-    int y;
-} movement_vec_t;
-
-typedef struct {
-    movement_vec_t movement;
-    bool mouse_used;
-} game_state_t;
-
-typedef enum {
-    OTHER,
-    PLAYER,
-    ENEMY,
-    BEAM,
-} object_type_t;
-
-typedef struct object object_t;
 typedef struct scene scene_t;
 
-typedef struct {
-    object_status_t (*init) (object_t* obj, scene_t*);
-    object_status_t (*update) (object_t* obj, scene_t*, void* arg);
-    object_status_t (*render) (object_t* obj, scene_t*);
-    object_status_t (*destroy) (object_t* obj);
-    object_status_t (*collision) (object_t*, object_t*);
-} object_handler_t;
+#define SCORE_BUF_SIZE 0x40
 
-struct object {
-    list_head_t list;
-    SDL_Texture* texture;
-    object_type_t type;
-    int x;
-    int y;
-    unsigned speed;
-    unsigned height;
-    unsigned width;
-    const object_handler_t* handler;
-};
+typedef struct {
+    int val;
+    char buf[SCORE_BUF_SIZE];
+    text_t* text;
+} score_t;
 
 struct scene {
     SDL_Window* window;
@@ -59,14 +25,18 @@ struct scene {
     Uint32 last_enemy_spawn;
     unsigned speed;
     unsigned y;
+    score_t score;
     list_head_t objects;
+    unsigned objects_cnt;
 };
 
 
-int init_scene(scene_t* scene);
-void destroy_scene(scene_t* scene);
-int update_scene(scene_t* scene, game_state_t*);
-object_status_t add_object_to_scene(scene_t* scene, object_t*  obj);
+game_status_t init_scene(scene_t*, game_state_t*);
+void destroy_scene(scene_t*, game_state_t*);
+int update_scene(scene_t*, game_state_t*);
+game_status_t add_object_to_scene(object_t*, scene_t*, game_state_t*);
+game_status_t del_object_from_scene(object_t* obj, scene_t* scene, game_state_t* state);
+game_status_t init_text_for_scene(scene_t*, game_state_t*);
 
 
 #endif

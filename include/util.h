@@ -10,7 +10,7 @@
         (type *)( (char *)__mptr - offsetof(type,member) );})
 
 
-object_status_t load_and_scale_texture(object_t* obj, scene_t* scene, SDL_Surface*, int width, int height);
+game_status_t load_and_scale_texture(object_t* obj, scene_t* scene, SDL_Surface*, int width, int height);
 
 bool rectangle_overlap(object_t* obj1, object_t* obj2);
 

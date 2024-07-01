@@ -3,11 +3,11 @@
 #include "util.h"
 #include "laser_beam.h"
 
-static object_status_t init(object_t*, scene_t*);
-static object_status_t update(object_t*, scene_t*, void* arg);
-static object_status_t render(object_t*, scene_t*);
-static object_status_t destroy(object_t*);
-static object_status_t collision(object_t*, object_t*);
+static game_status_t init(object_t*, game_state_t*);
+static game_status_t update(object_t*, game_state_t*);
+static game_status_t render(object_t*, game_state_t*);
+static game_status_t destroy(object_t*, game_state_t*);
+static game_status_t collision(object_t*, object_t*, game_state_t*);
 
 #define IMG_PATH "./images/space-ship.png"
 
@@ -47,11 +47,14 @@ int player_init(player_t* player, scene_t* scene) {
     return OK;
 }
 
-static object_status_t init(object_t* obj, scene_t* scene) {
+static game_status_t init(object_t* obj, game_state_t* game_state) {
+    scene_t* scene = game_state->scene;
+
     return load_and_scale_texture(obj, scene, g_img, WIDTH, HEIGHT);
 }
 
-static object_status_t render(object_t* obj, scene_t* scene) {
+static game_status_t render(object_t* obj, game_state_t* game_state) {
+    scene_t* scene = game_state->scene;
     int ret = OK;
 
     SDL_Rect src_rect1 = { 0, 0, obj->width, obj->height};
@@ -103,7 +106,10 @@ static void _handle_movement(player_t *player, scene_t* scene, movement_vec_t* m
     }
 }
 
-static object_status_t _handle_shooting(player_t* player, scene_t* scene, bool mouse_used) {
+static game_status_t _handle_shooting(player_t* player, game_state_t* game_state) {
+    bool mouse_used = game_state->mouse_used;
+    scene_t* scene = (scene_t*)game_state->scene;
+
     if (player->shooting_delay >= 0) {
         player->shooting_delay -= 1;
         return OK;
@@ -120,38 +126,38 @@ static object_status_t _handle_shooting(player_t* player, scene_t* scene, bool m
 
     laser_beam_t* laser1 = (laser_beam_t*)calloc(1, sizeof(laser_beam_t));
     x = obj->x;
-    laser_beam_init(laser1, scene, x, obj->y);
+    laser_beam_init(laser1, game_state, x, obj->y);
 
     laser_beam_t* laser2 = (laser_beam_t*)calloc(1, sizeof(laser_beam_t));
     x = obj->x + obj->width - obj->width / 8;
-    laser_beam_init(laser2, scene, x, obj->y);
+    laser_beam_init(laser2, game_state, x, obj->y);
 
-    ret = add_object_to_scene(scene, &laser1->obj);
-    ret = add_object_to_scene(scene, &laser2->obj);
+    ret = add_object_to_scene(&laser1->obj, scene, game_state);
+    ret = add_object_to_scene(&laser2->obj, scene, game_state);
 
     return ret;
 }
 
-static object_status_t update(object_t* obj, scene_t* scene, void* arg) {
-    game_state_t* game_state = (game_state_t*)arg;
+static game_status_t update(object_t* obj, game_state_t* game_state) {
+    scene_t* scene = game_state->scene;
     movement_vec_t* movement = &game_state->movement;
     player_t* player = (player_t*)obj;
 
     int ret;
     _handle_movement(player, scene, movement);
-    ret = _handle_shooting(player, scene, game_state->mouse_used);
+    ret = _handle_shooting(player, game_state);
     return ret;
 }
 
-static object_status_t destroy(object_t* obj) {
+static game_status_t destroy(object_t* obj, game_state_t* state) {
     SDL_DestroyTexture(obj->texture);
     return OK;
 }
 
-static object_status_t collision(object_t* me, object_t* other) {
+static game_status_t collision(object_t* me, object_t* other, game_state_t* state) {
     // delay the collision a little until enemy is in the middle of the player
     // else it looks as if we haven't hit the enemy yet due to rectangle boxes
-    if (other->type == ENEMY && abs(me->y - other->y) >= me->height / 2) {
+    if (other->type == ENEMY) {
         return DESTROY;
     }
     return OK;

@@ -1,11 +1,11 @@
 #include "enemy.h"
 #include "util.h"
 
-static object_status_t init(object_t*, scene_t*);
-static object_status_t update(object_t*, scene_t*, void* arg);
-static object_status_t render(object_t*, scene_t*);
-static object_status_t destroy(object_t*);
-static object_status_t collision(object_t*, object_t*);
+static game_status_t init(object_t*, game_state_t*);
+static game_status_t update(object_t*, game_state_t*);
+static game_status_t render(object_t*, game_state_t*);
+static game_status_t destroy(object_t*, game_state_t*);
+static game_status_t collision(object_t*, object_t*, game_state_t*);
 
 #define IMG_PATH "./images/asteroid.png"
 
@@ -23,7 +23,7 @@ static const object_handler_t g_handler = {
     .collision = collision
 };
 
-int enemy_init(enemy_t* enemy, scene_t* scene, int x, int y) {
+int enemy_init(enemy_t* enemy, game_state_t* game_state, int x, int y) {
     object_t* obj = &enemy->obj;
 
     obj->handler = &g_handler;
@@ -45,12 +45,14 @@ int enemy_init(enemy_t* enemy, scene_t* scene, int x, int y) {
     return 0;
 }
 
-static object_status_t init(object_t* obj, scene_t* scene) {
+static game_status_t init(object_t* obj, game_state_t* game_state) {
+    scene_t* scene = game_state->scene;
     return load_and_scale_texture(obj, scene, g_img, WIDTH, HEIGHT);
 }
 
-static object_status_t render(object_t* obj, scene_t* scene) {
-    object_status_t ret = OK;
+static game_status_t render(object_t* obj, game_state_t* game_state) {
+    scene_t* scene = game_state->scene;
+    game_status_t ret = OK;
 
     SDL_Rect src_rect1 = { 0, 0, obj->width, obj->height};
     SDL_Rect dst_rect1 = {obj->x, obj->y, obj->width, obj->height};
@@ -63,9 +65,8 @@ static object_status_t render(object_t* obj, scene_t* scene) {
     return ret;
 }
 
-static object_status_t update(object_t* obj, scene_t* scene, void* arg) {
-    (void)scene;
-    (void)arg;
+static game_status_t update(object_t* obj, game_state_t* game_state) {
+    scene_t* scene = game_state->scene;
 
     int height;
     SDL_GetWindowSize(scene->window, NULL, &height);
@@ -79,12 +80,12 @@ static object_status_t update(object_t* obj, scene_t* scene, void* arg) {
     return OK;
 }
 
-static object_status_t destroy(object_t* obj) {
+static game_status_t destroy(object_t* obj, game_state_t* game_state) {
     SDL_DestroyTexture(obj->texture);
     return 0;
 }
 
-static object_status_t collision(object_t* me, object_t* other) {
+static game_status_t collision(object_t* me, object_t* other, game_state_t* game_state) {
     if (other->type == BEAM) {
         return DESTROY;
     }
