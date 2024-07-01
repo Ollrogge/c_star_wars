@@ -169,7 +169,7 @@ game_status_t init_scene(scene_t* scene, game_state_t* game_state) {
     }
 
     // Create window
-    scene->window = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    scene->window = SDL_CreateWindow("Simple Star Wars", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (scene->window == NULL) {
         printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return ERROR;
