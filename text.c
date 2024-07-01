@@ -95,10 +95,10 @@ static game_status_t init(object_t* obj, game_state_t* state) {
     return OK;
 }
 
-static game_status_t update(object_t*, game_state_t* state) {
+static game_status_t update(object_t* obj, game_state_t* state) {
     return OK;
 }
 
-static game_status_t collision(object_t*, object_t*, game_state_t* state) {
+static game_status_t collision(object_t* me, object_t* other, game_state_t* state) {
     return OK;
 }

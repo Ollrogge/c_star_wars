@@ -85,6 +85,8 @@ int update_scene(scene_t* scene, game_state_t* game_state) {
         del_object_from_scene(to_del[i], scene, game_state);
     }
 
+    free(to_del);
+
     list_for_each(pos, &scene->objects) {
         obj = container_of(pos, object_t, list);
         obj->handler->render(obj, game_state);
